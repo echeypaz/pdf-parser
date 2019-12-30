@@ -20,11 +20,8 @@ import PyPDF2
 import re
 import sys
 # import HttpResponse
-try:
-    import googleclouddebugger
-    googleclouddebugger.enable()
-except ImportError:
-    pass
+import googleclouddebugger
+googleclouddebugger.enable()
 
 # If `entrypoint` is not defined in app.yaml, App Engine will look for an app
 # called `app` in `main.py`.
