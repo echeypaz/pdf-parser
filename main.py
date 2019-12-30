@@ -14,8 +14,17 @@
 
 # [START gae_python37_app]
 from flask import Flask
+import os
+#import csv
 import PyPDF2
-
+import re
+import sys
+# import HttpResponse
+try:
+    import googleclouddebugger
+    googleclouddebugger.enable()
+except ImportError:
+    pass
 
 # If `entrypoint` is not defined in app.yaml, App Engine will look for an app
 # called `app` in `main.py`.
@@ -24,15 +33,45 @@ app = Flask(__name__)
 
 @app.route('/')
 def hello():
+    
+    
+    
     """Return a friendly HTTP greeting."""
-    pdfFileObj = open('minano.pdf', 'rb')
-    pdfReader = PyPDF2.PdfFileReader(pdfFileObj)
-    return 'Hello World yo!' + pdfReader.numPages
+
+    # with open('/tmp/resulst.csv', 'w', newline='') as csvfile:
+    #    quoting_ = csv.QUOTE_MINIMAL
+    #    spamwriter = csv.writer(csvfile, delimiter=' ', quotechar='|',
+    #                            quoting=quoting_)
+    #    spamwriter.writerow(['Spam'] * 5 + ['Baked Beans'])
+    #    spamwriter.writerow(['Spam', 'Lovely Spam', 'Wonderful Spam'])
+    # response = HttpResponse(csvfile.getvalue(), content_type='text/csv')
+    # response['Content-Disposition'] = 'attachment; filename=stock.csv'
+    # return response
+    files = [f for f in os.listdir('.') if os.path.isfile(f)]
+    files = filter(lambda f: f.endswith(('.pdf', '.PDF')), files)
+    doc_types = ["Notas de lectura", "notas digitales", "monografias", "noticias", "articulos"]
+    abstract_types = ["Resumen", "Abstract", "Resumé"]
+    keywords_types = ["Palabras Clave", "Key Words", "Mots clé"]
+
+    for doc in files:
+        pdfFileObj = open(doc, 'rb')
+        pdfReader = PyPDF2.PdfFileReader(pdfFileObj)
+        content = ""
+        for page in pdfReader.pages:
+            content = content + str(page.extractText())
+            for doc_type in doc_types:
+                patron = re.compile('(.*)?' + doc_type)
+                for search in patron.finditer(content):
+                    # sys.stdout.write(search)
+                    sys.stdout.write("********************************")
+
+    return content
 
 
 if __name__ == '__main__':
+    # print(hello())
     # This is used when running locally only. When deploying to Google App
     # Engine, a webserver process such as Gunicorn will serve the app. This
     # can be configured by adding an `entrypoint` to app.yaml.
-    app.run(host='127.0.0.1', port=8080, debug=True)
+    app.run(host='0.0.0.1', port=8080, debug=True)
 # [END gae_python37_app]
