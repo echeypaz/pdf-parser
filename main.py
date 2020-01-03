@@ -58,7 +58,7 @@ def hello():
             content = content + str(page.extractText())
             for doc_type in doc_types:
                 patron = re.compile('(.*)?' + doc_type)
-                for search in patron.finditer(content):
+                for search in patron.search(content):
                     # sys.stdout.write(search)
                     sys.stdout.write("********************************")
 
